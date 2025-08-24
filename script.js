@@ -1,25 +1,19 @@
 // ===============================
-// ORIGINAL FUNCTIONALITY (Unchanged)
+// ABOUT US MODAL
 // ===============================
-
-// About Us Modal
 const aboutUsBtn = document.getElementById('aboutUsBtn');
 const aboutUsModal = document.getElementById('aboutUsModal');
 const closeAboutUs = document.getElementById('closeAboutUs');
 
-aboutUsBtn?.addEventListener('click', () => {
-  aboutUsModal.classList.remove('hidden');
-});
-closeAboutUs?.addEventListener('click', () => {
-  aboutUsModal.classList.add('hidden');
-});
+aboutUsBtn?.addEventListener('click', () => aboutUsModal.classList.remove('hidden'));
+closeAboutUs?.addEventListener('click', () => aboutUsModal.classList.add('hidden'));
 window.addEventListener('click', (e) => {
-  if (e.target === aboutUsModal) {
-    aboutUsModal.classList.add('hidden');
-  }
+  if (e.target === aboutUsModal) aboutUsModal.classList.add('hidden');
 });
 
-// Dark Mode Toggle
+// ===============================
+// DARK MODE TOGGLE
+// ===============================
 const darkModeToggle = document.getElementById('darkModeToggle');
 darkModeToggle?.addEventListener('click', () => {
   document.documentElement.classList.toggle('dark');
@@ -34,7 +28,9 @@ if (
   document.documentElement.classList.remove('dark');
 }
 
-// Camera Elements
+// ===============================
+// CAMERA ELEMENTS
+// ===============================
 const startCameraBtn = document.getElementById('startCameraBtn');
 const stopCameraBtn = document.getElementById('stopCameraBtn');
 const toggleCameraBtn = document.getElementById('toggleCameraBtn');
@@ -44,36 +40,25 @@ const cameraCanvas = document.getElementById('cameraCanvas');
 const cameraPlaceholder = document.getElementById('cameraPlaceholder');
 const ctx = cameraCanvas.getContext('2d');
 
-// Output Elements
 const outputText = document.getElementById('recognizedText');
 const copyBtn = document.getElementById('copyBtn');
 const clearBtn = document.getElementById('clearBtn');
 
-// State Variables
-let usingCanvas = false;
-let cameraStream = null;
 let recognizedText = "";
-
-// Dummy sample outputs (fallback if no gesture)
-const sampleOutputs = ["Hello 👋", "Yes 👍", "No 👎", "Stop ✋", "Goodbye 👋"];
-
-// ===============================
-// MEDIAPIPE HAND DETECTION INTEGRATION
-// ===============================
-
+let cameraStream = null;
 let hands = null;
 let mediapipeCamera = null;
 
-// Create a hidden canvas for MediaPipe
+// Hidden canvas for MediaPipe drawing
 const mpCanvas = document.createElement('canvas');
 const mpCtx = mpCanvas.getContext('2d');
 
-// Initialize MediaPipe Hands
+// ===============================
+// MEDIAPIPE INITIALIZATION
+// ===============================
 function initMediaPipe() {
   hands = new Hands({
-    locateFile: (file) => {
-      return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-    },
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
   });
 
   hands.setOptions({
@@ -86,20 +71,18 @@ function initMediaPipe() {
   hands.onResults(onResults);
 }
 
-// Handle MediaPipe Results
 function onResults(results) {
   mpCtx.save();
   mpCtx.clearRect(0, 0, mpCanvas.width, mpCanvas.height);
   mpCtx.drawImage(results.image, 0, 0, mpCanvas.width, mpCanvas.height);
 
-  if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+  if (results.multiHandLandmarks?.length) {
     for (const landmarks of results.multiHandLandmarks) {
       drawConnectors(mpCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 4 });
       drawLandmarks(mpCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
     }
 
     const landmarks = results.multiHandLandmarks[0];
-    // Detect a "Hello" gesture (open palm)
     if (isHelloGesture(landmarks)) {
       updateRecognizedText("Hello! 👋");
     }
@@ -107,7 +90,6 @@ function onResults(results) {
   mpCtx.restore();
 }
 
-// Check for open palm gesture (Hello)
 function isHelloGesture(landmarks) {
   const indexTip = landmarks[8];
   const middleTip = landmarks[12];
@@ -127,27 +109,25 @@ function isHelloGesture(landmarks) {
   );
 }
 
-// Update recognized text safely
 function updateRecognizedText(text) {
   recognizedText = text;
   outputText.textContent = recognizedText;
 }
 
 // ===============================
-// CAMERA HANDLING (Updated to integrate MediaPipe)
+// CAMERA HANDLING
 // ===============================
-
 startCameraBtn?.addEventListener('click', async () => {
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
     cameraView.srcObject = cameraStream;
+
     cameraView.classList.remove('hidden');
     cameraPlaceholder.classList.add('hidden');
     stopCameraBtn.classList.remove('hidden');
     toggleCameraBtn.classList.remove('hidden');
     captureBtn.classList.remove('hidden');
 
-    // Initialize MediaPipe when camera starts
     initMediaPipe();
 
     mediapipeCamera = new Camera(cameraView, {
@@ -176,9 +156,8 @@ stopCameraBtn?.addEventListener('click', () => {
 });
 
 // ===============================
-// EXISTING OUTPUT BUTTONS
+// OUTPUT BUTTONS
 // ===============================
-
 copyBtn?.addEventListener('click', () => {
   if (recognizedText) {
     navigator.clipboard.writeText(recognizedText);
