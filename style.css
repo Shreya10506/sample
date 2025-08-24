@@ -1,1 +1,21 @@
+/* Custom styles not handled by Tailwind */
+.camera-feed {
+  aspect-ratio: 4/3;
+  background-color: #f3f4f6;
+}
+#cameraView {
+  transform: scaleX(-1); /* Mirror the video feed */
+}
+
+.dark .camera-feed {
+  background-color: #1f2937;
+}
+.text-output {
+  min-height: 200px;
+}
+@media (max-width: 768px) {
+  .split-layout {
+    flex-direction: column;
+  }
+}
 
